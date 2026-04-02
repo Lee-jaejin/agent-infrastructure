@@ -32,6 +32,8 @@
     "ralph:login": "podman run --rm -it --userns=keep-id -e HOME=/tmp/claude-home -v \"$HOME/.claude:/tmp/claude-home/.claude\" -v \"$HOME/.claude.json:/tmp/claude-home/.claude.json\" ralph-claude login",
     "ntfy:up": "podman compose -f infra/ntfy/docker-compose.yml up -d",
     "ntfy:down": "podman compose -f infra/ntfy/docker-compose.yml down",
+    "ntfy:ubuntu:deploy": "bash scripts/deploy-ntfy-ubuntu.sh",
+    "ralph:ubuntu:setup": "bash scripts/setup-ralph-ubuntu.sh",
     "dex:setup": "bash scripts/setup-dex.sh",
     "dex:up": "podman compose -f infra/dex/docker-compose.yml up -d",
     "dex:down": "podman compose -f infra/dex/docker-compose.yml down",
