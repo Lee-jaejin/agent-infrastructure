@@ -12,6 +12,15 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CA_DIR="${SCRIPT_DIR}/../infra/headscale/certs"
 PORT="${1:-8880}"
+
+# certs 디렉터리에는 ca.key 와 headscale.key 가 함께 있어 통째로 서빙하면 개인키가 유출됨
+# 공개 대상만 임시 디렉터리에 복사해 그쪽을 서빙하고 종료 시 삭제
+SERVE_DIR="$(mktemp -d)"
+trap 'rm -rf "${SERVE_DIR}"' EXIT
+cp "${CA_DIR}/ca.crt" "${SERVE_DIR}/"
+if [[ -f "${CA_DIR}/headscale-ca.mobileconfig" ]]; then
+    cp "${CA_DIR}/headscale-ca.mobileconfig" "${SERVE_DIR}/"
+fi
 LAN_IP=$(ipconfig getifaddr en0 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}')
 
 echo "Serving CA cert at http://${LAN_IP}:${PORT}/ca.crt"
@@ -20,7 +29,7 @@ echo "Press Ctrl+C to stop."
 
 # Custom server: .mobileconfig must be served as application/x-apple-aspen-config
 # otherwise iOS treats it as a file download instead of a configuration profile
-python3 - "${PORT}" "${CA_DIR}" << 'PYEOF'
+python3 - "${PORT}" "${SERVE_DIR}" << 'PYEOF'
 import sys, os
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
