@@ -1,65 +1,92 @@
 #!/bin/bash
-# deploy-ntfy-ubuntu.sh — ntfy를 Ubuntu 서버에 배포한다
-# Usage: pnpm ntfy:ubuntu:deploy
+# ntfy 를 상시 가동 리눅스에 배포
 #
-# 사전 조건:
-#   - UBUNTU_HOST, UBUNTU_SSH_USER가 .env에 설정되어 있어야 함
-#   - Ubuntu 서버에 Docker 또는 podman-compose가 설치되어 있어야 함
-#   - SSH 키 인증이 설정되어 있어야 함
+# 맥북은 뚜껑을 닫으면 잠들어 알림 서버도 함께 멈춤
+# 상시 켜진 리눅스로 옮겨 알림이 맥북 상태와 무관하게 유지되게 함
 #
-# 완료 후:
-#   - .env의 NTFY_URL을 http://${UBUNTU_HOST}:8095 로 변경
-#   - iPhone ntfy 앱 서버 주소도 동일하게 변경
+# 전제 조건:
+#   - .env 에 UBUNTU_HOST, UBUNTU_SSH_USER 설정
+#   - 맥북에서 리눅스로 SSH 공개키 인증이 되는 상태
+#
+# 사용법:
+#   pnpm ntfy:ubuntu:deploy
+#
+# 이 스크립트는 sudo 가 필요 없는 준비 단계까지만 수행
+# 마지막에 출력하는 부트스트랩 명령을 사용자가 직접 실행해 설치를 마무리
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+PROJECT_DIR="$(dirname "${SCRIPT_DIR}")"
 
-if [ -f "${PROJECT_DIR}/.env" ]; then
-  set -a && . "${PROJECT_DIR}/.env" && set +a
+ENV_FILE="${PROJECT_DIR}/.env"
+if [[ -f "${ENV_FILE}" ]]; then
+    set -a; source "${ENV_FILE}"; set +a
 fi
 
-UBUNTU_HOST="${UBUNTU_HOST:?UBUNTU_HOST이 .env에 설정되어 있지 않습니다}"
-UBUNTU_SSH_USER="${UBUNTU_SSH_USER:?UBUNTU_SSH_USER가 .env에 설정되어 있지 않습니다}"
+UBUNTU_HOST="${UBUNTU_HOST:?UBUNTU_HOST 이 .env 에 설정되어 있지 않습니다}"
+UBUNTU_SSH_USER="${UBUNTU_SSH_USER:?UBUNTU_SSH_USER 가 .env 에 설정되어 있지 않습니다}"
 NTFY_PORT="${NTFY_PORT:-8095}"
+REMOTE="${UBUNTU_SSH_USER}@${UBUNTU_HOST}"
+STAGE="/tmp/ntfy-deploy"
 
-echo "ntfy 배포 중: ${UBUNTU_SSH_USER}@${UBUNTU_HOST} ..."
+# 이미지는 digest 로 고정. 태그로 두면 재기동 때 상위 버전이 올라와 동작이 달라질 수 있음
+NTFY_IMAGE="${NTFY_IMAGE:-docker.io/binwiederhier/ntfy:v2.11.0}"
 
-# compose 파일 전송
-scp -q "${PROJECT_DIR}/infra/ntfy/docker-compose.yml" \
-  "${UBUNTU_SSH_USER}@${UBUNTU_HOST}:/tmp/ntfy-compose.yml"
+echo "=== ntfy 배포 준비: ${REMOTE} ==="
 
-# 원격 실행: ntfy 시작
-ssh "${UBUNTU_SSH_USER}@${UBUNTU_HOST}" "
-  set -euo pipefail
-  mkdir -p ~/ntfy
-  cp /tmp/ntfy-compose.yml ~/ntfy/docker-compose.yml
-  cd ~/ntfy
+# podman 3.4.4 에는 compose 하위 명령이 없고 docker 는 sudo 가 필요해
+# compose 대신 systemd 유닛에 podman run 으로 구성
+cat > "/tmp/ntfy-bootstrap.sh" <<BOOTSTRAP
+#!/bin/bash
+# 리눅스에서 root 로 실행
+set -euo pipefail
 
-  if command -v docker &>/dev/null; then
-    docker compose up -d
-  elif command -v podman-compose &>/dev/null; then
-    podman-compose up -d
-  else
-    echo 'Error: docker 또는 podman-compose가 필요합니다' >&2
-    exit 1
-  fi
+echo "[1/3] 이미지 준비"
+podman pull -q "${NTFY_IMAGE}" >/dev/null
+install -d -m 755 /var/lib/ntfy
 
-  sleep 2
-  curl -sf http://localhost:${NTFY_PORT}/v1/health >/dev/null && echo 'ntfy 헬스체크: OK'
-"
+echo "[2/3] systemd 유닛 등록"
+cat > /etc/systemd/system/ntfy.service <<UNIT
+[Unit]
+Description=ntfy push notification server
+After=network-online.target
+Wants=network-online.target
 
+[Service]
+Type=simple
+# 재기동 시 남은 컨테이너가 이름을 잡고 있으면 기동 실패하므로 먼저 제거
+ExecStartPre=-/usr/bin/podman rm -f ntfy
+ExecStart=/usr/bin/podman run --rm --name ntfy \\
+    --network host \\
+    -v /var/lib/ntfy:/var/lib/ntfy \\
+    -e TZ=Asia/Seoul \\
+    ${NTFY_IMAGE} serve --listen-http :${NTFY_PORT}
+ExecStop=/usr/bin/podman stop -t 10 ntfy
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+systemctl daemon-reload
+systemctl enable --now ntfy
+
+echo "[3/3] 기동 확인"
+sleep 5
+systemctl is-active ntfy
+curl -sf "http://localhost:${NTFY_PORT}/v1/health" && echo
+BOOTSTRAP
+
+ssh "${REMOTE}" "rm -rf ${STAGE} && mkdir -p ${STAGE}"
+scp -q "/tmp/ntfy-bootstrap.sh" "${REMOTE}:${STAGE}/bootstrap.sh"
+ssh "${REMOTE}" "chmod +x ${STAGE}/bootstrap.sh"
+rm -f "/tmp/ntfy-bootstrap.sh"
+
+echo "준비 완료. 아래 명령을 실행해 설치를 마치세요."
 echo ""
-echo "배포 완료."
+echo "  ssh -t ${REMOTE} 'sudo bash ${STAGE}/bootstrap.sh'"
 echo ""
-echo "=== 다음 단계 ==="
-echo ""
-echo "1. .env 업데이트:"
-echo "   NTFY_URL=http://${UBUNTU_HOST}:${NTFY_PORT}"
-echo ""
-echo "2. iPhone ntfy 앱 서버 주소 변경:"
-echo "   http://${UBUNTU_HOST}:${NTFY_PORT}"
-echo ""
-echo "3. 기존 macOS ntfy 중지 (선택):"
-echo "   pnpm ntfy:down"
+echo "설치 후 .env 를 아래처럼 바꾸세요."
+echo "  NTFY_URL=http://${UBUNTU_HOST}:${NTFY_PORT}"
