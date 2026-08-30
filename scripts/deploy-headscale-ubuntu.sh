@@ -33,6 +33,10 @@ REMOTE="${UBUNTU_SSH_USER}@${UBUNTU_HOST}"
 LOCAL_STAGE="${HOME}/.cache/headscale-deploy"
 STAGE="/tmp/headscale-deploy"
 
+# 스테이징에는 서버 개인키와 노드 등록 DB 사본이 담김
+# 전송 도중 실패해도 남지 않도록 종료 시 삭제
+trap 'rm -rf "${LOCAL_STAGE}"' EXIT
+
 # 이미지는 맥북에서 쓰던 것과 같은 digest 로 고정
 # 태그로 두면 옮기는 사이 상위 버전이 올라와 DB 스키마가 어긋날 수 있음
 HS_IMAGE="${HS_IMAGE:-docker.io/headscale/headscale@sha256:51b1b9182bb6219e97374fa89af6b9320d6f87ecc739e328d5357ea4fa7a5ce3}"
@@ -126,6 +130,11 @@ sleep 6
 systemctl is-active headscale
 curl -sS --cacert /etc/headscale/certs/ca.crt "https://\$(hostname -I | awk '{print \$1}'):8080/health" || true
 echo
+
+# 정식 설치본이 /etc/headscale 과 /var/lib/headscale 에 있으므로 스테이징 사본은 남길 이유가 없음
+# 개인키와 등록 DB 가 /tmp 에 남지 않도록 마지막에 삭제
+rm -rf "\${STAGE}"
+echo "스테이징 정리 완료: \${STAGE}"
 BOOTSTRAP
 chmod +x "${LOCAL_STAGE}/bootstrap.sh"
 
