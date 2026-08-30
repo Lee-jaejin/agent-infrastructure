@@ -17,7 +17,14 @@ CONTROL_IP="${1:?Usage: node-join.sh <control-tower-ip> <api-key>}"
 API_KEY="${2:?Usage: node-join.sh <control-tower-ip> <api-key>}"
 HEADSCALE_URL="https://${CONTROL_IP}:8080"
 CA_URL="http://${CONTROL_IP}:8880/ca.crt"
-HEADSCALE_USER="${HEADSCALE_USER:-kosmos}"
+# headscale v0.28 부터 preauthkey API 가 사용자를 이름이 아닌 숫자 ID 로 받음
+# ID 확인: podman exec headscale headscale users list
+HEADSCALE_USER_ID="${HEADSCALE_USER_ID:-1}"
+
+# preauthkey API 는 상대 시간("1h")이 아니라 RFC3339 시각을 요구
+# 리눅스는 GNU date, macOS 는 BSD date 라 문법이 달라서 순서대로 시도
+EXPIRATION=$(date -u -d '+1 hour' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null \
+    || date -u -v+1H +%Y-%m-%dT%H:%M:%SZ)
 
 echo "=== Joining OpenClaw network ==="
 echo "Control tower: ${HEADSCALE_URL}"
@@ -41,7 +48,7 @@ AUTHKEY=$(curl -sf \
     -X POST "${HEADSCALE_URL}/api/v1/preauthkey" \
     -H "Authorization: Bearer ${API_KEY}" \
     -H "Content-Type: application/json" \
-    -d "{\"user\":\"${HEADSCALE_USER}\",\"reusable\":false,\"ephemeral\":false,\"expiration\":\"1h\"}" \
+    -d "{\"user\":\"${HEADSCALE_USER_ID}\",\"reusable\":false,\"ephemeral\":false,\"expiration\":\"${EXPIRATION}\"}" \
     | jq -r '.preAuthKey.key' 2>/dev/null || true)
 
 # Fallback to -k if CA cert not yet trusted by curl
@@ -50,7 +57,7 @@ if [[ -z "${AUTHKEY}" || "${AUTHKEY}" == "null" ]]; then
         -X POST "${HEADSCALE_URL}/api/v1/preauthkey" \
         -H "Authorization: Bearer ${API_KEY}" \
         -H "Content-Type: application/json" \
-        -d "{\"user\":\"${HEADSCALE_USER}\",\"reusable\":false,\"ephemeral\":false,\"expiration\":\"1h\"}" \
+        -d "{\"user\":\"${HEADSCALE_USER_ID}\",\"reusable\":false,\"ephemeral\":false,\"expiration\":\"${EXPIRATION}\"}" \
         | jq -r '.preAuthKey.key')
 fi
 
