@@ -48,7 +48,7 @@ echo "=== headscale 이전 준비: ${REMOTE} ==="
 echo "[1/4] 맥북 headscale 정지 및 상태 반출"
 podman stop headscale >/dev/null 2>&1 || true
 rm -rf "${LOCAL_STAGE}"; mkdir -p "${LOCAL_STAGE}/state"
-podman run --rm -v openclaw-private_headscale-data:/d:ro -v "${LOCAL_STAGE}/state:/out" \
+podman run --rm -v agent-infrastructure_headscale-data:/d:ro -v "${LOCAL_STAGE}/state:/out" \
     docker.io/library/alpine:latest sh -c 'cp -a /d/. /out/' >/dev/null
 ls -1 "${LOCAL_STAGE}/state" | sed 's/^/  /'
 

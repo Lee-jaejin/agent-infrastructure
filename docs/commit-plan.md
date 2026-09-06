@@ -91,7 +91,7 @@ git commit -m "docs: add architecture, backup, monitoring, update-policy, worksp
 ## 한 번에 실행 (복사용)
 
 ```bash
-cd /Users/jaejin/Study/ai/openclaw-private
+cd /Users/jaejin/Study/ai/agent-infrastructure
 
 git add config/openclaw.json docker-compose.yml infra/openclaw/Dockerfile .env.example .gitignore
 git commit -m "infra(openclaw): workspace volume, gateway rate limit, skipBootstrap, 2026.2.15

@@ -43,8 +43,8 @@ Task-based routing with locally hosted models (see `config/openclaw.json` for cu
 
 ```bash
 # Clone repository
-git clone https://github.com/jaejin/openclaw-private.git
-cd openclaw-private
+git clone https://github.com/jaejin/agent-infrastructure.git
+cd agent-infrastructure
 
 # Run setup
 ./scripts/setup-all.sh

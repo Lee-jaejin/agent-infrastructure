@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-BACKUP_DIR="${BACKUP_DIR:-$HOME/.openclaw-private/backups}"
+BACKUP_DIR="${BACKUP_DIR:-$HOME/.agent-infrastructure/backups}"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 BACKUP_PATH="$BACKUP_DIR/$TIMESTAMP"
 

@@ -11,7 +11,7 @@
 - 이 레포 클론 후 프로젝트 루트에서 진행
 
 ```bash
-cd /path/to/openclaw-private
+cd /path/to/agent-infrastructure
 ```
 
 ---

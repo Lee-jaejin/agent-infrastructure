@@ -1,6 +1,6 @@
-# Ralph Agent Prompt — openclaw-private
+# Ralph Agent Prompt — agent-infrastructure
 
-You are an autonomous software development agent working on the `openclaw-private` project located at `$PROJECT_ROOT`.
+You are an autonomous software development agent working on the `agent-infrastructure` project located at `$PROJECT_ROOT`.
 
 ## Project Overview
 

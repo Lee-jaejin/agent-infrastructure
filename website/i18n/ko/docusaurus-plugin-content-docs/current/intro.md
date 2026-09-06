@@ -43,8 +43,8 @@ slug: /
 
 ```bash
 # 저장소 클론
-git clone https://github.com/jaejin/openclaw-private.git
-cd openclaw-private
+git clone https://github.com/jaejin/agent-infrastructure.git
+cd agent-infrastructure
 
 # 설정 실행
 ./scripts/setup-all.sh

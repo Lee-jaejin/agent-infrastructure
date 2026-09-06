@@ -21,7 +21,7 @@ sidebar_position: 8
 ## 사용법
 
 ```typescript
-import { selectModel, classifyTask } from "@openclaw-private/model-router";
+import { selectModel, classifyTask } from "@agent-infrastructure/model-router";
 
 // 메시지 기반 모델 선택
 const model = selectModel("이 코드에서 버그를 찾아줘");
@@ -51,7 +51,7 @@ selectModel("왜 이렇게 동작하는지 분석해줘");
 `provider: "claude"` 옵션으로 Ollama 대신 Claude 모델로 라우팅:
 
 ```typescript
-import { createModelRouter } from "@openclaw-private/model-router";
+import { createModelRouter } from "@agent-infrastructure/model-router";
 
 const router = createModelRouter({ provider: "claude" });
 
@@ -75,7 +75,7 @@ router.selectModel("아키텍처 트레이드오프를 분석해줘");
 ## 커스텀 설정
 
 ```typescript
-import { createModelRouter } from "@openclaw-private/model-router";
+import { createModelRouter } from "@agent-infrastructure/model-router";
 
 const router = createModelRouter({
   models: {

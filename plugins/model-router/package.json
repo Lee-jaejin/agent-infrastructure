@@ -1,5 +1,5 @@
 {
-  "name": "@openclaw-private/model-router",
+  "name": "@agent-infrastructure/model-router",
   "version": "0.1.0",
   "description": "Multi-LLM routing plugin for task-based model selection",
   "type": "module",

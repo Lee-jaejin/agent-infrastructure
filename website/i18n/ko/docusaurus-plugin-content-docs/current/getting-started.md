@@ -19,8 +19,8 @@ Private AI 시스템 빠른 설정 가이드입니다.
 
 ```bash
 # 저장소 클론
-git clone https://github.com/jaejin/openclaw-private.git
-cd openclaw-private
+git clone https://github.com/jaejin/agent-infrastructure.git
+cd agent-infrastructure
 
 # 전체 설정 실행
 ./scripts/setup-all.sh

@@ -464,7 +464,7 @@ Use tmux so the process survives terminal closes:
 
 ```bash
 # Start in background tmux session
-tmux new-session -d -s ralph 'cd /path/to/openclaw-private && yarn ralph:start-projects'
+tmux new-session -d -s ralph 'cd /path/to/agent-infrastructure && yarn ralph:start-projects'
 
 # Attach to see logs
 tmux attach -t ralph

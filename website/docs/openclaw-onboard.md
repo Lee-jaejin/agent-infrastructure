@@ -94,7 +94,7 @@ ssh-keygen -t ed25519 -f ~/.openclaw/keys/openclaw_imsg -N "" -C "openclaw-imsg"
 Add to `~/.ssh/authorized_keys` (**one line**):
 
 ```
-command="/path/to/openclaw-private/scripts/imsg-guard",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty ssh-ed25519 <PUBLIC_KEY> openclaw-imsg
+command="/path/to/agent-infrastructure/scripts/imsg-guard",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty ssh-ed25519 <PUBLIC_KEY> openclaw-imsg
 ```
 
 Security restrictions:

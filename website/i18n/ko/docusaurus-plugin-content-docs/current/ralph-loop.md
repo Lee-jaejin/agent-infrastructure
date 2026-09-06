@@ -464,7 +464,7 @@ git revert HEAD             # 안전한 revert (히스토리 보존, push 후 �
 
 ```bash
 # 백그라운드 tmux 세션으로 시작
-tmux new-session -d -s ralph 'cd /path/to/openclaw-private && yarn ralph:start-projects'
+tmux new-session -d -s ralph 'cd /path/to/agent-infrastructure && yarn ralph:start-projects'
 
 # 로그 확인 (접속)
 tmux attach -t ralph
