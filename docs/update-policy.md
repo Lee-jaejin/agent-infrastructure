@@ -89,7 +89,7 @@ ollama rm <old-model>
 
 ```bash
 # 1. 소스 업데이트
-cd path/to/openclaw-private
+cd path/to/agent-infrastructure
 git pull origin main
 
 # 2. 이미지 재빌드 (context는 docker-compose와 동일하게)
@@ -130,7 +130,7 @@ ollama pull qwen2.5-coder:32b-v1.0
 
 ```bash
 # 이전 커밋으로 복원
-cd path/to/openclaw-private
+cd path/to/agent-infrastructure
 git checkout <previous-commit>
 podman build -t openclaw:local ./infra/openclaw
 ```

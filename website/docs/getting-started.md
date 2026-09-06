@@ -19,8 +19,8 @@ Quick setup guide for the private AI system.
 
 ```bash
 # Clone repository
-git clone https://github.com/jaejin/openclaw-private.git
-cd openclaw-private
+git clone https://github.com/jaejin/agent-infrastructure.git
+cd agent-infrastructure
 
 # Run complete setup
 ./scripts/setup-all.sh

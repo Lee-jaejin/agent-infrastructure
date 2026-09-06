@@ -15,7 +15,7 @@ const config: Config = {
   baseUrl: '/',
 
   organizationName: 'jaejin',
-  projectName: 'openclaw-private',
+  projectName: 'agent-infrastructure',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -41,7 +41,7 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          editUrl: 'https://github.com/jaejin/openclaw-private/tree/main/website/',
+          editUrl: 'https://github.com/jaejin/agent-infrastructure/tree/main/website/',
           routeBasePath: '/',
         },
         blog: false,
@@ -76,7 +76,7 @@ const config: Config = {
           position: 'right',
         },
         {
-          href: 'https://github.com/jaejin/openclaw-private',
+          href: 'https://github.com/jaejin/agent-infrastructure',
           label: 'GitHub',
           position: 'right',
         },
@@ -116,7 +116,7 @@ const config: Config = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/jaejin/openclaw-private',
+              href: 'https://github.com/jaejin/agent-infrastructure',
             },
             {
               label: 'OpenClaw',

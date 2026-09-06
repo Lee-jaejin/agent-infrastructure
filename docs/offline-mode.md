@@ -29,7 +29,7 @@ ollama list
 ### 2. OpenClaw 이미지 빌드
 
 ```bash
-cd path/to/openclaw-private
+cd path/to/agent-infrastructure
 podman build -t openclaw:local ./infra/openclaw
 
 # 이미지 저장 (백업용)
@@ -40,7 +40,7 @@ podman save openclaw:local -o ~/backups/openclaw-local.tar
 
 ```bash
 # npm 패키지 캐시 (필요시)
-cd path/to/openclaw-private
+cd path/to/agent-infrastructure
 pnpm install --offline
 ```
 
@@ -57,8 +57,8 @@ podman run -it --rm --name openclaw \
   --network none \
   --security-opt no-new-privileges:true \
   --cap-drop ALL \
-  -v path/to/openclaw-private/config/openclaw.json:/home/node/.openclaw/openclaw.json:ro \
-  -v path/to/openclaw-private/workspace:/home/node/.openclaw/workspace:rw \
+  -v path/to/agent-infrastructure/config/openclaw.json:/home/node/.openclaw/openclaw.json:ro \
+  -v path/to/agent-infrastructure/workspace:/home/node/.openclaw/workspace:rw \
   -e HOME=/home/node \
   openclaw:local \
   bash

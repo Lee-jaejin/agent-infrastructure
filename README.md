@@ -1,4 +1,4 @@
-# openclaw-private
+# agent-infrastructure
 
 My private OpenClaw setup for closed-circuit networks. Personal use only.
 
@@ -36,8 +36,8 @@ Self-hosted AI assistant infrastructure using:
 
 ```bash
 # Clone and setup
-git clone https://github.com/<username>/openclaw-private.git
-cd openclaw-private
+git clone https://github.com/<username>/agent-infrastructure.git
+cd agent-infrastructure
 
 # This repo expects the OpenClaw source at ./openclaw
 # (e.g., git submodule or a checked-out sibling directory).
@@ -56,7 +56,7 @@ bash scripts/setup-all.sh
 ## Project Structure
 
 ```
-openclaw-private/
+agent-infrastructure/
 ├── config/                 # OpenClaw configuration
 │   └── openclaw.json
 ├── infra/                  # Infrastructure setup

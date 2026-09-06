@@ -70,7 +70,7 @@
 ## 디렉토리 구조
 
 ```
-openclaw-private/
+agent-infrastructure/
 ├── config/                 # OpenClaw 설정 (openclaw.json)
 ├── infra/                  # 인프라 배포
 │   ├── headscale/          # VPN 코디네이터 (Podman)

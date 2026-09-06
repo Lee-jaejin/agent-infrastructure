@@ -32,10 +32,10 @@ cp /var/lib/headscale/db.sqlite "$BACKUP_DIR/headscale.db"
 cp /etc/headscale/config.yaml "$BACKUP_DIR/headscale-config.yaml"
 
 # OpenClaw 설정 (이 레포 기준)
-cp -r path/to/openclaw-private/config "$BACKUP_DIR/openclaw-config"
+cp -r path/to/agent-infrastructure/config "$BACKUP_DIR/openclaw-config"
 
 # OpenClaw 워크스페이스 (SOUL.md, AGENTS.md, USER.md 등)
-cp -r path/to/openclaw-private/workspace "$BACKUP_DIR/openclaw-workspace" 2>/dev/null || true
+cp -r path/to/agent-infrastructure/workspace "$BACKUP_DIR/openclaw-workspace" 2>/dev/null || true
 
 # 압축
 tar -czf "$BACKUP_DIR.tar.gz" -C "$(dirname $BACKUP_DIR)" "$(basename $BACKUP_DIR)"
@@ -74,10 +74,10 @@ sudo systemctl start headscale
 
 ```bash
 # 설정 복원
-cp -r backup/openclaw-config/* path/to/openclaw-private/config/
+cp -r backup/openclaw-config/* path/to/agent-infrastructure/config/
 
 # 워크스페이스 복원 (백업에 포함한 경우)
-cp -r backup/openclaw-workspace/* path/to/openclaw-private/workspace/ 2>/dev/null || true
+cp -r backup/openclaw-workspace/* path/to/agent-infrastructure/workspace/ 2>/dev/null || true
 ```
 
 ### Ollama 모델 (재다운로드)

@@ -15,7 +15,7 @@ Default models are configured in `src/index.ts`. Routes by task type:
 ## Usage
 
 ```typescript
-import { selectModel, classifyTask } from "@openclaw-private/model-router";
+import { selectModel, classifyTask } from "@agent-infrastructure/model-router";
 
 // Select model based on message
 const model = selectModel("Find the bug in this code");
@@ -29,7 +29,7 @@ const taskType = classifyTask("Why does this work that way?");
 ## Custom Configuration
 
 ```typescript
-import { createModelRouter } from "@openclaw-private/model-router";
+import { createModelRouter } from "@agent-infrastructure/model-router";
 
 const router = createModelRouter({
   models: {

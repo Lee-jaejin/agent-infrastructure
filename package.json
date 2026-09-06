@@ -1,5 +1,5 @@
 {
-  "name": "openclaw-private",
+  "name": "agent-infrastructure",
   "version": "0.1.0",
   "description": "My private OpenClaw setup for closed-circuit networks. Personal use only.",
   "type": "module",

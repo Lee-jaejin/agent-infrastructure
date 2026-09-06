@@ -24,10 +24,10 @@ pnpm pack
 
 `pnpm pack`은 `prepack` 스크립트(build + ui:build) 실행 후 `openclaw-<version>.tgz`를 프로젝트 루트에 생성한다.
 
-### 2. tarball을 openclaw-private로 복사
+### 2. tarball을 agent-infrastructure로 복사
 
 ```bash
-cp /path/to/openclaw/openclaw-*.tgz /path/to/openclaw-private/infra/openclaw/
+cp /path/to/openclaw/openclaw-*.tgz /path/to/agent-infrastructure/infra/openclaw/
 ```
 
 ### 3. 로컬 이미지 빌드 및 실행 (compose override 사용)
@@ -35,7 +35,7 @@ cp /path/to/openclaw/openclaw-*.tgz /path/to/openclaw-private/infra/openclaw/
 **중요:** `podman compose up -d --build openclaw`만 쓰면 기본 Dockerfile이 사용되어 **npm 버전(2026.2.15)**으로 다시 빌드되고, 로컬 브랜치 수정이 덮어씌워진다. 로컬 tarball을 쓰는 동안은 **반드시** override 파일을 지정한다.
 
 ```bash
-cd /path/to/openclaw-private
+cd /path/to/agent-infrastructure
 podman compose -f docker-compose.yml -f docker-compose.openclaw-local.yml up -d --build openclaw
 ```
 

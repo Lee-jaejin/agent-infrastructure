@@ -94,7 +94,7 @@ ssh-keygen -t ed25519 -f ~/.openclaw/keys/openclaw_imsg -N "" -C "openclaw-imsg"
 `~/.ssh/authorized_keys`에 **한 줄**로 추가:
 
 ```
-command="/path/to/openclaw-private/scripts/imsg-guard",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty ssh-ed25519 <공개키> openclaw-imsg
+command="/path/to/agent-infrastructure/scripts/imsg-guard",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty ssh-ed25519 <공개키> openclaw-imsg
 ```
 
 보안 제한:

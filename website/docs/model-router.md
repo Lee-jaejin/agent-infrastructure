@@ -21,7 +21,7 @@ Default models are configured in `plugins/model-router/src/index.ts`. Each task 
 ## Usage
 
 ```typescript
-import { selectModel, classifyTask } from "@openclaw-private/model-router";
+import { selectModel, classifyTask } from "@agent-infrastructure/model-router";
 
 // Select model based on message
 const model = selectModel("Find the bug in this code");
@@ -51,7 +51,7 @@ selectModel("왜 이렇게 동작하는지 분석해줘");
 Use the `provider: "claude"` option to route to Claude models instead of Ollama:
 
 ```typescript
-import { createModelRouter } from "@openclaw-private/model-router";
+import { createModelRouter } from "@agent-infrastructure/model-router";
 
 const router = createModelRouter({ provider: "claude" });
 
@@ -75,7 +75,7 @@ This is used by [Ralph Loop](./ralph-loop.md) to automatically select the model 
 ## Custom Configuration
 
 ```typescript
-import { createModelRouter } from "@openclaw-private/model-router";
+import { createModelRouter } from "@agent-infrastructure/model-router";
 
 const router = createModelRouter({
   models: {
