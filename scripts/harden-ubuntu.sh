@@ -28,7 +28,7 @@ log() { printf '[harden] %s\n' "$*"; }
 if [ -z "${LAN_CIDR:-}" ]; then
     LAN_IF=$(ip route show default | awk '{print $5; exit}')
     LAN_CIDR=$(ip -4 -o addr show dev "$LAN_IF" scope global | awk '{print $4; exit}')
-    # 호스트 주소를 대역 주소로 바꿈 (e.g., 192.168.219.100/24 -> 192.168.219.0/24)
+    # 호스트 주소를 대역 주소로 바꿈 (e.g., 10.0.0.5/24 -> 10.0.0.0/24)
     LAN_CIDR=$(python3 -c "import ipaddress,sys; print(ipaddress.ip_network(sys.argv[1], strict=False))" "$LAN_CIDR")
 fi
 log "LAN 대역: ${LAN_CIDR}"
