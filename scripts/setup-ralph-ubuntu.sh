@@ -1,4 +1,7 @@
 #!/bin/bash
+# DEPRECATED (#9)
+# 자율형 에이전트 진입점은 raven 텔레그램 게이트웨이로 이전
+# 이 경로는 유지보수 대상 아님. 배경은 README 의 "자율형 에이전트" 참고
 # 리눅스에 ralph 실행 환경 준비
 #
 # 워처 스크립트들이 JSON 파싱에 host 의 node 를 쓰므로 리눅스에도 Node 가 필요
@@ -20,6 +23,8 @@
 #   pnpm ralph:ubuntu:setup
 
 set -euo pipefail
+
+echo "[deprecated] 이 경로는 raven 텔레그램 게이트웨이로 대체됐습니다. README 참고" >&2
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "${SCRIPT_DIR}")"

@@ -1,4 +1,7 @@
 #!/bin/bash
+# DEPRECATED (#9)
+# 자율형 에이전트 진입점은 raven 텔레그램 게이트웨이로 이전
+# 이 경로는 유지보수 대상 아님. 배경은 README 의 "자율형 에이전트" 참고
 # Ralph - Long-running AI agent loop (Podman + Claude Code subscription)
 # Forked from PageAI-Pro/ralph-loop, adapted for Podman isolation + model-router
 #
@@ -11,6 +14,8 @@
 #   - .agent/tasks.json and .agent/PROMPT.md in project dir
 
 set -e
+
+echo "[deprecated] 이 경로는 raven 텔레그램 게이트웨이로 대체됐습니다. README 참고" >&2
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
