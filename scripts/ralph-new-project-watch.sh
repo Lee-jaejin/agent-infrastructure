@@ -1,4 +1,7 @@
 #!/bin/bash
+# DEPRECATED (#9)
+# 자율형 에이전트 진입점은 raven 텔레그램 게이트웨이로 이전
+# 이 경로는 유지보수 대상 아님. 배경은 README 의 "자율형 에이전트" 참고
 # ralph-new-project-watch.sh — watches ntfy for new project creation requests
 # Run in background: yarn ralph:new-project-watch
 # Included automatically by: yarn ralph:start-projects
@@ -15,6 +18,8 @@
 # Requirements: NTFY_URL, RALPH_PROJECTS_BASE_DIR
 
 set -euo pipefail
+
+echo "[deprecated] 이 경로는 raven 텔레그램 게이트웨이로 대체됐습니다. README 참고" >&2
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
