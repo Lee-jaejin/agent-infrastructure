@@ -11,11 +11,20 @@
 #
 # 사용법:
 #   ./scripts/deploy-headscale-ubuntu.sh
+#   ./scripts/deploy-headscale-ubuntu.sh --force   # 안전 검사 무시
+#
+# 한 방향 이전을 전제로 만들었다. 이전이 끝난 뒤 다시 실행하면 리눅스의
+# 등록 데이터를 맥북 사본으로 덮으므로, 기본 동작은 거부다
 #
 # 이 스크립트는 sudo 가 필요 없는 준비 단계까지만 수행
 # 마지막에 출력하는 부트스트랩 명령을 사용자가 직접 실행해 설치를 마무리
 
 set -euo pipefail
+
+FORCE=0
+if [[ "${1:-}" == "--force" ]]; then
+    FORCE=1
+fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "${SCRIPT_DIR}")"
@@ -43,17 +52,63 @@ HS_IMAGE="${HS_IMAGE:-docker.io/headscale/headscale@sha256:51b1b9182bb6219e97374
 
 echo "=== headscale 이전 준비: ${REMOTE} ==="
 
+# 0. 원격에 이미 설치돼 있으면 중단
+# 이전이 끝난 상태에서 다시 실행하면 리눅스의 최신 등록 데이터를 덮는다.
+# 맥북 컨테이너를 멈추기 전에 확인해야 실수해도 되돌릴 것이 없다
+echo "[0/5] 원격 설치 여부 확인"
+REMOTE_INSTALLED=$(ssh "${REMOTE}" \
+    'test -f /etc/headscale/config.yaml && echo yes || echo no' 2>/dev/null || echo unknown)
+if [[ "${REMOTE_INSTALLED}" == "yes" ]]; then
+    if [[ "${FORCE}" -eq 1 ]]; then
+        echo "  이미 설치돼 있으나 --force 로 계속 진행"
+    else
+        echo "" >&2
+        echo "중단: ${REMOTE} 에 headscale 이 이미 설치돼 있습니다." >&2
+        echo "  그대로 진행하면 그쪽의 등록 데이터를 이 맥북 사본으로 덮습니다." >&2
+        echo "  이전 이후 등록한 노드와 발급한 키가 사라집니다." >&2
+        echo "" >&2
+        echo "  주소만 바꾸려면 인증서와 설정만 갱신하세요. 등록 데이터는 건드리지 않습니다." >&2
+        echo "  정말 덮어써야 하면 --force 를 붙이세요." >&2
+        exit 1
+    fi
+else
+    echo "  설치 흔적 없음, 계속 진행"
+fi
+
 # 1. 맥북 headscale 정지 후 상태 반출
 # 컨테이너가 도는 중 sqlite 를 복사하면 쓰다 만 상태가 섞이므로 먼저 정지
-echo "[1/4] 맥북 headscale 정지 및 상태 반출"
+echo "[1/5] 맥북 headscale 정지 및 상태 반출"
 podman stop headscale >/dev/null 2>&1 || true
 rm -rf "${LOCAL_STAGE}"; mkdir -p "${LOCAL_STAGE}/state"
 podman run --rm -v agent-infrastructure_headscale-data:/d:ro -v "${LOCAL_STAGE}/state:/out" \
     docker.io/library/alpine:latest sh -c 'cp -a /d/. /out/' >/dev/null
 ls -1 "${LOCAL_STAGE}/state" | sed 's/^/  /'
 
+# 반출한 DB 에 노드가 없으면 빈 상태를 밀어 넣는 것이므로 중단.
+# 볼륨이 지워졌거나 이름이 바뀌면 podman 이 빈 볼륨을 새로 만들어 조용히 통과한다
+DB="${LOCAL_STAGE}/state/db.sqlite"
+if [[ -f "${DB}" ]]; then
+    NODE_COUNT=$(sqlite3 "${DB}" 'select count(*) from nodes;' 2>/dev/null || echo 0)
+else
+    NODE_COUNT=0
+fi
+echo "  반출된 노드 수: ${NODE_COUNT}"
+if [[ "${NODE_COUNT}" -eq 0 ]]; then
+    if [[ "${FORCE}" -eq 1 ]]; then
+        echo "  노드가 없으나 --force 로 계속 진행"
+    else
+        echo "" >&2
+        echo "중단: 반출된 등록 데이터에 노드가 없습니다." >&2
+        echo "  볼륨이 지워졌거나 이름이 바뀌면 빈 볼륨이 새로 생겨 이 상태가 됩니다." >&2
+        echo "  이대로 진행하면 리눅스의 등록을 빈 상태로 덮습니다." >&2
+        echo "" >&2
+        echo "  처음 구축하는 경우라면 --force 를 붙이세요." >&2
+        exit 1
+    fi
+fi
+
 # 2. 설정과 인증서 준비
-echo "[2/4] 설정과 인증서 준비"
+echo "[2/5] 설정과 인증서 준비"
 mkdir -p "${LOCAL_STAGE}/config" "${LOCAL_STAGE}/certs"
 sed -e "s|^server_url:.*|server_url: https://${UBUNTU_HOST}:8080|" \
     -e "s|^    ipv4:.*|    ipv4: ${UBUNTU_HOST}|" \
@@ -64,7 +119,7 @@ cp "${HS_DIR}/certs/headscale.crt" "${HS_DIR}/certs/headscale.key" "${HS_DIR}/ce
 grep -n "server_url\|    ipv4" "${LOCAL_STAGE}/config/config.yaml" | sed 's/^/  /'
 
 # 3. 원격 부트스트랩 스크립트 생성
-echo "[3/4] 부트스트랩 스크립트 생성"
+echo "[3/5] 부트스트랩 스크립트 생성"
 cat > "${LOCAL_STAGE}/bootstrap.sh" <<BOOTSTRAP
 #!/bin/bash
 # 리눅스에서 root 로 실행. podman 설치부터 서비스 등록까지 수행
@@ -139,7 +194,7 @@ BOOTSTRAP
 chmod +x "${LOCAL_STAGE}/bootstrap.sh"
 
 # 4. 리눅스로 전송
-echo "[4/4] 리눅스로 전송"
+echo "[4/5] 리눅스로 전송"
 ssh "${REMOTE}" "rm -rf ${STAGE} && mkdir -p ${STAGE}"
 scp -q -r "${LOCAL_STAGE}/." "${REMOTE}:${STAGE}/"
 ssh "${REMOTE}" "ls -1 ${STAGE}" | sed 's/^/  /'
